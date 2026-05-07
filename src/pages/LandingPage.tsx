@@ -13,10 +13,12 @@ export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
@@ -28,13 +30,20 @@ export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
         body: JSON.stringify(body),
       });
 
+      if (!response.ok) {
+        throw new Error('Authentication failed');
+      }
+
       const data = await response.json();
 
       if (data.success) {
         onLoginSuccess(data.user);
+      } else {
+        setError(data.message || 'Invalid credentials');
       }
-    } catch (error) {
-      console.error('Auth error:', error);
+    } catch (err) {
+      console.error('Auth error:', err);
+      setError('Connection refused. Is the server running?');
     } finally {
       setIsLoading(false);
     }
@@ -131,6 +140,17 @@ export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
               {isLogin ? 'Enter your credentials to access your farm dashboard.' : 'Start optimizing your yield with precision AI tools.'}
             </p>
           </div>
+
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 bg-error-container text-error rounded-2xl text-sm font-bold border border-error/20 flex items-center gap-3"
+            >
+              <div className="w-2 h-2 rounded-full bg-error animate-pulse" />
+              {error}
+            </motion.div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
