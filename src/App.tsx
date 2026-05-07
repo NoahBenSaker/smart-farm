@@ -9,15 +9,15 @@ import LandingPage from './pages/LandingPage';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<{ name: string; email: string } | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
+  const handleLoginSuccess = (userData: { name: string; email: string }) => {
+    setUser(userData);
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    setUser(null);
   };
 
   const renderContent = () => {
@@ -38,7 +38,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background selection:bg-primary-fixed selection:text-primary">
       <AnimatePresence mode="wait">
-        {!isAuthenticated ? (
+        {!user ? (
           <motion.div
             key="landing"
             initial={{ opacity: 0 }}
@@ -46,7 +46,7 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
           >
-            <LandingPage onLogin={handleLogin} />
+            <LandingPage onLoginSuccess={handleLoginSuccess} />
           </motion.div>
         ) : (
           <motion.div
@@ -59,7 +59,7 @@ export default function App() {
             <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={handleLogout} />
             
             <main className="flex-1 min-h-screen flex flex-col ml-64">
-              <TopBar />
+              <TopBar userName={user.name} />
               
               {/* Content Area */}
               <div className="p-8 pb-20 custom-scrollbar overflow-y-auto h-[calc(100vh-64px)]">

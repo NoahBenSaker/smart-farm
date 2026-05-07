@@ -4,18 +4,40 @@ import { Sprout, ArrowRight, Mail, Lock, User, CheckCircle2, ChevronRight } from
 import { cn } from '../lib/utils';
 
 interface LandingPageProps {
-  onLogin: () => void;
+  onLoginSuccess: (user: { name: string; email: string }) => void;
 }
 
-export default function LandingPage({ onLogin }: LandingPageProps) {
+export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
   const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, logic goes here. For now, we simulate success.
-    onLogin();
+    setIsLoading(true);
+
+    try {
+      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+      const body = isLogin ? { email, password } : { name, email, password };
+
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        onLoginSuccess(data.user);
+      }
+    } catch (error) {
+      console.error('Auth error:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -119,6 +141,8 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
                   <input 
                     type="text" 
                     required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                     placeholder="Agronomist Name"
                     className="w-full bg-background border border-outline-variant h-14 pl-12 pr-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-medium"
                   />
@@ -163,10 +187,11 @@ export default function LandingPage({ onLogin }: LandingPageProps) {
 
             <button 
               type="submit"
-              className="w-full bg-primary text-white h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary-container transition-all active:scale-[0.98] mt-4"
+              disabled={isLoading}
+              className="w-full bg-primary text-white h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary-container transition-all active:scale-[0.98] mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLogin ? 'Access Dashboard' : 'Create Farm Account'}
-              <ArrowRight size={20} />
+              {isLoading ? 'Processing...' : (isLogin ? 'Access Dashboard' : 'Create Farm Account')}
+              {!isLoading && <ArrowRight size={20} />}
             </button>
           </form>
 
