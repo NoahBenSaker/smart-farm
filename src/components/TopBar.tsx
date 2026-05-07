@@ -1,11 +1,7 @@
 import React from 'react';
 import { Search, Bell, Settings } from 'lucide-react';
 
-interface TopBarProps {
-  userName: string;
-}
-
-export default function TopBar({ userName }: TopBarProps) {
+export default function TopBar() {
   return (
     <header className="flex justify-between items-center px-8 h-16 w-full bg-surface-container-low sticky top-0 z-40">
       <div className="flex items-center gap-6 w-1/2">
@@ -32,13 +28,13 @@ export default function TopBar({ userName }: TopBarProps) {
         
         <div className="flex items-center gap-3 cursor-pointer group">
           <div className="text-right">
-            <p className="text-sm font-bold text-on-surface leading-none">{userName}</p>
+            <p className="text-sm font-bold text-on-surface leading-none">David Greene</p>
             <p className="text-[10px] text-on-surface-variant font-semibold uppercase tracking-wider mt-1">Senior Agronomist</p>
           </div>
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed shadow-sm transition-transform group-hover:scale-105">
             <img 
-              src={`https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=154212&color=fff`} 
-              alt={userName}
+              src="https://images.unsplash.com/photo-1542385151-efd9000785a0?q=80&w=200&h=200&auto=format&fit=crop" 
+              alt="David Greene"
               className="w-full h-full object-cover"
             />
           </div>

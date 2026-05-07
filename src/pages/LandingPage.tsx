@@ -4,49 +4,18 @@ import { Sprout, ArrowRight, Mail, Lock, User, CheckCircle2, ChevronRight } from
 import { cn } from '../lib/utils';
 
 interface LandingPageProps {
-  onLoginSuccess: (user: { name: string; email: string }) => void;
+  onLogin: () => void;
 }
 
-export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
+export default function LandingPage({ onLogin }: LandingPageProps) {
   const [isLogin, setIsLogin] = useState(true);
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const body = isLogin ? { email, password } : { name, email, password };
-
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
-
-      if (!response.ok) {
-        throw new Error('Authentication failed');
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        onLoginSuccess(data.user);
-      } else {
-        setError(data.message || 'Invalid credentials');
-      }
-    } catch (err) {
-      console.error('Auth error:', err);
-      setError('Connection refused. Is the server running?');
-    } finally {
-      setIsLoading(false);
-    }
+    // In a real app, logic goes here. For now, we simulate success.
+    onLogin();
   };
 
   return (
@@ -141,17 +110,6 @@ export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
             </p>
           </div>
 
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-4 bg-error-container text-error rounded-2xl text-sm font-bold border border-error/20 flex items-center gap-3"
-            >
-              <div className="w-2 h-2 rounded-full bg-error animate-pulse" />
-              {error}
-            </motion.div>
-          )}
-
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
               <div className="space-y-2">
@@ -161,8 +119,6 @@ export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
                   <input 
                     type="text" 
                     required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
                     placeholder="Agronomist Name"
                     className="w-full bg-background border border-outline-variant h-14 pl-12 pr-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all font-medium"
                   />
@@ -207,11 +163,10 @@ export default function LandingPage({ onLoginSuccess }: LandingPageProps) {
 
             <button 
               type="submit"
-              disabled={isLoading}
-              className="w-full bg-primary text-white h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary-container transition-all active:scale-[0.98] mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-primary text-white h-14 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-2 hover:bg-primary-container transition-all active:scale-[0.98] mt-4"
             >
-              {isLoading ? 'Processing...' : (isLogin ? 'Access Dashboard' : 'Create Farm Account')}
-              {!isLoading && <ArrowRight size={20} />}
+              {isLogin ? 'Access Dashboard' : 'Create Farm Account'}
+              <ArrowRight size={20} />
             </button>
           </form>
 
